@@ -251,12 +251,17 @@ body.menu-open{overflow:hidden}
       </div>
     </div>
     <div class="reveal">
-      <div class="field"><label for="f-name">Імʼя</label><input id="f-name" type="text" autocomplete="name"></div>
-      <div class="field"><label for="f-phone">Телефон</label><input id="f-phone" type="tel" autocomplete="tel" placeholder="+38 (0__) ___ __ __"></div>
-      <div class="field"><label for="f-msg">Коротко про ваш проєкт</label><textarea id="f-msg" placeholder="Тераса приблизно 4×6 м, цікавить Біокліматика Pro…"></textarea></div>
-      <button class="btn btn-brass" id="sendBtn" type="button">Надіслати запит</button>
+      <form id="leadForm" action="https://formspree.io/f/mbdvwzwk" method="POST">
+      <div class="field"><label for="f-name">Імʼя</label><input id="f-name" name="Імʼя" type="text" autocomplete="name"></div>
+      <div class="field"><label for="f-phone">Телефон</label><input id="f-phone" name="Телефон" type="tel" autocomplete="tel" placeholder="+38 (0__) ___ __ __"></div>
+      <div class="field"><label for="f-msg">Коротко про ваш проєкт</label><textarea id="f-msg" name="Повідомлення" placeholder="Тераса приблизно 4×6 м, цікавить Біокліматика Pro…"></textarea></div>
+      <input type="hidden" name="_subject" value="Заявка з сайту — Біокліматика Pro">
+      <input type="hidden" name="Сторінка" value="Біокліматика Pro">
+      <input type="text" name="_gotcha" style="display:none">
+      <button class="btn btn-brass" id="sendBtn" type="submit">Надіслати запит</button>
       <p class="form-status" id="formStatus" aria-live="polite"></p>
       <p class="form-note">Надсилаючи форму, ви погоджуєтесь на обробку персональних даних.</p>
+      </form>
     </div>
   </div>
 </section>
@@ -274,12 +279,22 @@ if(matchMedia('(prefers-reduced-motion: reduce)').matches){
 }
 const io=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');io.unobserve(e.target)}})},{threshold:.12});
 document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
-document.getElementById('sendBtn').addEventListener('click',()=>{
+const leadForm=document.getElementById('leadForm');
+leadForm.addEventListener('submit',async e=>{
+  e.preventDefault();
+  const status=document.getElementById('formStatus');
   const name=document.getElementById('f-name').value.trim();
   const phone=document.getElementById('f-phone').value.trim();
-  const status=document.getElementById('formStatus');
-  if(!name||!phone){status.textContent='Вкажіть, будь ласка, імʼя та телефон.';return}
-  status.textContent='Дякуємо, '+name+'! Ми зателефонуємо вам найближчим часом.';
+  if(!name||!phone){status.style.color='#e0a45e';status.textContent='Вкажіть, будь ласка, імʼя та телефон.';return}
+  const btn=document.getElementById('sendBtn');
+  btn.disabled=true;btn.textContent='Надсилаємо…';
+  status.style.color='';status.textContent='';
+  try{
+    const res=await fetch(leadForm.action,{method:'POST',body:new FormData(leadForm),headers:{'Accept':'application/json'}});
+    if(res.ok){leadForm.reset();status.style.color='#9CAF8E';status.textContent='Дякуємо, '+name+'! Ми зателефонуємо вам найближчим часом.';}
+    else{status.style.color='#e0a45e';status.textContent='Не вдалося надіслати. Зателефонуйте нам: +38 (067) 187 64 95';}
+  }catch(err){status.style.color='#e0a45e';status.textContent='Немає звʼязку. Зателефонуйте нам: +38 (067) 187 64 95';}
+  btn.disabled=false;btn.textContent='Надіслати запит';
 });
 
 // Мобільне меню
