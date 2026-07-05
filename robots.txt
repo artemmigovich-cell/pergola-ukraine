@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://www.pergolaua.com/sitemap.xml
+Sitemap: https://pergola-ukraine.com/sitemap.xml
