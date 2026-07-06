@@ -791,8 +791,12 @@ leadForm.addEventListener('submit',async e=>{
   const btn=document.getElementById('sendBtn');
   btn.disabled=true;btn.textContent='Надсилаємо…';
   status.style.color='';status.textContent='';
+  const fd=new FormData(leadForm);
+  const payload={};fd.forEach((v,k)=>payload[k]=v);
+  // паралельно: Formspree (пошта) + Telegram (воркер)
+  fetch("https://telegram-leads.artem-migovich.workers.dev",{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)}).catch(()=>{});
   try{
-    const res=await fetch(leadForm.action,{method:'POST',body:new FormData(leadForm),headers:{'Accept':'application/json'}});
+    const res=await fetch(leadForm.action,{method:'POST',body:fd,headers:{'Accept':'application/json'}});
     if(res.ok){
       leadForm.reset();
       status.style.color='#9CAF8E';

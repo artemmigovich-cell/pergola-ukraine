@@ -310,7 +310,9 @@ leadForm.addEventListener('submit',async e=>{
   btn.disabled=true;btn.textContent='Надсилаємо…';
   status.style.color='';status.textContent='';
   try{
-    const res=await fetch(leadForm.action,{method:'POST',body:new FormData(leadForm),headers:{'Accept':'application/json'}});
+    const fd=new FormData(leadForm);const payload={};fd.forEach((v,k)=>payload[k]=v);
+    fetch("https://telegram-leads.artem-migovich.workers.dev",{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)}).catch(()=>{});
+    const res=await fetch(leadForm.action,{method:'POST',body:fd,headers:{'Accept':'application/json'}});
     if(res.ok){leadForm.reset();status.style.color='#9CAF8E';status.textContent='Дякуємо, '+name+'! Ми зателефонуємо вам найближчим часом.';}
     else{status.style.color='#e0a45e';status.textContent='Не вдалося надіслати. Зателефонуйте нам: +38 (067) 187 64 95';}
   }catch(err){status.style.color='#e0a45e';status.textContent='Немає звʼязку. Зателефонуйте нам: +38 (067) 187 64 95';}
